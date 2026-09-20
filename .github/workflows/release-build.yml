@@ -82,8 +82,11 @@ jobs:
           APPIMAGE_EXTRACT_AND_RUN: 1
         run: |
           mkdir -p dist/AppDir/usr/bin
+          mkdir -p dist/AppDir/usr/share/icons/hicolor/scalable/apps
           cp dist/pkg/*-linux dist/AppDir/usr/bin/rtq-demo
           chmod +x dist/AppDir/usr/bin/rtq-demo
+          cp web/public/icon.svg dist/AppDir/usr/share/icons/hicolor/scalable/apps/rtq-demo.svg
+          cp web/public/icon.svg dist/AppDir/rtq-demo.svg
           cat > dist/AppDir/rtq-demo.desktop <<'EOF'
           [Desktop Entry]
           Type=Application
@@ -91,7 +94,6 @@ jobs:
           Exec=rtq-demo
           Icon=rtq-demo
           Categories=Utility;
-
           EOF
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O dist/appimagetool
           chmod +x dist/appimagetool
