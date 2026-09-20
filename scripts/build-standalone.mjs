@@ -1,5 +1,7 @@
 import { build } from 'esbuild';
-import config from '../sea-config.json';
+import { readFileSync } from 'fs';
+const config = JSON.parse(readFileSync('./sea-config.json', 'utf8'));
+
 
 (async () => {
   try {
