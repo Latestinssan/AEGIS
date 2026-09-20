@@ -1,0 +1,132 @@
+name: Build & Publish Desktop Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish assets to (e.g. v0.1.0)'
+        required: true
+        default: v0.1.0
+  push:
+    tags:
+      - 'v0.1.0'
+
+env:
+  RELEASE_TAG: ${{ github.event.inputs.tag || (github.ref_type == 'tag' && github.ref_name) || 'v0.1.0' }}
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            artifact: rtq-demo.dmg
+            label: macos
+          - os: windows-latest
+            artifact: rtq-demo.exe
+            label: windows
+          - os: ubuntu-latest
+            artifact: rtq-demo.AppImage
+            label: linux
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install root deps
+        run: npm ci
+
+      - name: Build server + web
+        run: npm run build
+
+      - name: Build SEA bundle
+        run: npm run build:sea
+
+      - name: Build native binary (pkg)
+        run: npx pkg .
+
+      # ------------------------------------------------------------------
+      # Windows — the pkg binary IS the portable EXE, just rename it
+      # ------------------------------------------------------------------
+      - name: Prepare Windows EXE
+        if: matrix.os == 'windows-latest'
+        run: |
+          Copy-Item dist\pkg\*-win.exe dist\rtq-demo.exe
+
+      # ------------------------------------------------------------------
+      # macOS — wrap the binary in a REAL .dmg (hdiutil)
+      # ------------------------------------------------------------------
+      - name: Prepare macOS DMG
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p dist/dmg-root/RTQ-Demo.app
+          cp dist/pkg/*-macos dist/dmg-root/RTQ-Demo.app/rtq-demo
+          chmod +x dist/dmg-root/RTQ-Demo.app/rtq-demo
+          hdiutil create -volname "RTQ Demo" -srcfolder dist/dmg-root \
+            -ov -format UDZO dist/rtq-demo.dmg
+
+      # ------------------------------------------------------------------
+      # Linux — wrap the binary in a REAL AppImage (appimagetool)
+      # ------------------------------------------------------------------
+      - name: Prepare Linux AppImage
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p dist/AppDir/usr/bin
+          cp dist/pkg/*-linux dist/AppDir/usr/bin/rtq-demo
+          chmod +x dist/AppDir/usr/bin/rtq-demo
+          cat > dist/AppDir/rtq-demo.desktop <<'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=RTQ Demo
+          Exec=rtq-demo
+          Icon=rtq-demo
+          Categories=Utility;
+
+          EOF
+          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O dist/appimagetool
+          chmod +x dist/appimagetool
+          dist/appimagetool dist/AppDir dist/rtq-demo.AppImage
+          rm -rf dist/AppDir dist/appimagetool
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.label }}-artifact
+          path: dist/${{ matrix.artifact }}
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Resolve target tag
+        id: tag
+        run: |
+          TAG="${RELEASE_TAG:-v0.1.0}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update release and upload assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          TAG="${{ steps.tag.outputs.tag }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release-assets/rtq-demo.dmg release-assets/rtq-demo.exe release-assets/rtq-demo.AppImage --clobber
+          else
+            gh release create "$TAG" release-assets/rtq-demo.dmg release-assets/rtq-demo.exe release-assets/rtq-demo.AppImage --generate-notes
+          fi
