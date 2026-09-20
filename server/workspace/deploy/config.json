@@ -1,0 +1,10 @@
+{
+  "service": "aegis-api",
+  "replicas": 3,
+  "region": "us-east-1",
+  "env": "production",
+  "endpoints": [
+    "https://api.example.com",
+    "https://cdn.example.com"
+  ]
+}

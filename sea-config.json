@@ -1,0 +1,9 @@
+{
+  "entry": "../web/src/main.tsx",
+  "output": "../dist/rtq-sea.js",
+  "format": "esm",
+  "bundle": true,
+  "minify": true,
+  "target": "node18",
+  "external": ["react", "react-dom"]
+}

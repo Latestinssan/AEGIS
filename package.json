@@ -1,0 +1,24 @@
+{
+  "name": "aegis-rtq-command-deck",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AEGIS — an interactive command deck that demonstrates the true power of RTQ, the Risk-Adaptive Capability Security Runtime.",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n rtq,deck -c cyan,magenta \"npm:dev -w server\" \"npm:dev -w web\"",
+    "build": "npm run build -w server && npm run build -w web",
+    "start": "npm run start -w server",
+    "test": "npm run test -w server",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w web"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

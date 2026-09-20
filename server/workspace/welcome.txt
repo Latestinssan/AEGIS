@@ -1,0 +1,5 @@
+AEGIS command deck — RTQ demo workspace
+
+Everything under server/workspace/ is the sandboxed zone.
+Capabilities may only touch paths here; any escape attempt
+is blocked by path policy AND the OS sandbox.
