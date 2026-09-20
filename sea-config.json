@@ -1,7 +1,7 @@
 {
   "entry": "web/src/main.tsx",
 
-  "output": "../dist/rtq-sea.js",
+  "output": "dist/rtq-sea.js",
   "format": "esm",
   "bundle": true,
   "minify": true,
