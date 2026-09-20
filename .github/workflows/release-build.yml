@@ -78,6 +78,8 @@ jobs:
       # ------------------------------------------------------------------
       - name: Prepare Linux AppImage
         if: matrix.os == 'ubuntu-latest'
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: 1
         run: |
           mkdir -p dist/AppDir/usr/bin
           cp dist/pkg/*-linux dist/AppDir/usr/bin/rtq-demo
