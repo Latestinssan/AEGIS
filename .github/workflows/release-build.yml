@@ -38,7 +38,7 @@ jobs:
           cache: npm
 
       - name: Install root deps
-        run: npm ci
+        run: npm install
 
       - name: Install create-dmg (macOS only)
         if: matrix.os == 'macos-latest'
