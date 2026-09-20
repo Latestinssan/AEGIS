@@ -51,7 +51,7 @@ jobs:
         run: npm run build:sea
 
       - name: Build native binary (pkg)
-        run: npx pkg dist/rtq-sea.js
+        run: npx pkg .
 
       # ------------------------------------------------------------------
       # Windows — the pkg binary IS the portable EXE, just rename it
