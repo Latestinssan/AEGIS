@@ -1,12 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#22d3ee"/>
-      <stop offset="1" stop-color="#a78bfa"/>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e1b4b"/>
     </linearGradient>
+    <linearGradient id="accentGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#06b6d4"/>
+      <stop offset="0.5" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="innerGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feComposite in="blur" in2="SourceGraphic" operator="in"/>
+    </filter>
   </defs>
-  <rect width="256" height="256" rx="56" fill="#080a16"/>
-  <path d="M128 32 L216 76 V180 L128 224 L40 180 V76 Z" fill="none" stroke="url(#g)" stroke-width="14" stroke-linejoin="round"/>
-  <path d="M128 80 L168 104 V148 L128 172 L88 148 V104 Z" fill="url(#g)" opacity="0.9"/>
-  <circle cx="128" cy="128" r="14" fill="#04050b"/>
+
+  <!-- Background rounded rect -->
+  <rect width="256" height="256" rx="48" fill="url(#bgGrad)"/>
+
+  <!-- Outer glow ring -->
+  <circle cx="128" cy="128" r="110" fill="none" stroke="url(#accentGrad)" stroke-width="3" opacity="0.6" filter="url(#glow)"/>
+
+  <!-- Inner hexagon frame -->
+  <path d="M128 24 L212 52 v152 L128 232 L44 180 V52 Z" fill="none" stroke="url(#accentGrad)" stroke-width="4" filter="url(#glow)" opacity="0.8"/>
+
+  <!-- Shield shape -->
+  <path d="M128 40 C128 40 80 40 80 72 C80 104 128 160 128 160 C128 160 176 104 176 72 C176 40 128 40 128 40 Z" fill="#0c0c1e" stroke="url(#accentGrad)" stroke-width="2" filter="url(#innerGlow)" opacity="0.9"/>
+
+  <!-- Circuit pattern lines -->
+  <g stroke="url(#accentGrad)" stroke-width="1.5" opacity="0.5">
+    <path d="M78 88 L178 88"/>
+    <path d="M78 120 L178 120"/>
+    <path d="M108 72 V136"/>
+    <path d="M148 72 V136"/>
+  </g>
+
+  <!-- Central diamond/key -->
+  <path d="M128 84 L156 112 L128 140 L100 112 Z" fill="url(#goldGrad)" filter="url(#glow)" stroke="#fff" stroke-width="1" opacity="0.3"/>
+
+  <!-- AEGIS text -->
+  <text x="128" y="200" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="24" fill="url(#accentGrad)" letter-spacing="6" opacity="0.95">
+    AEGIS
+  </text>
+
+  <!-- Small accent dots -->
+  <circle cx="64" cy="64" r="3" fill="#06b6d4" opacity="0.7"/>
+  <circle cx="192" cy="64" r="3" fill="#8b5cf6" opacity="0.7"/>
+  <circle cx="64" cy="192" r="3" fill="#ec4899" opacity="0.7"/>
+  <circle cx="192" cy="192" r="3" fill="#fbbf24" opacity="0.7"/>
 </svg>

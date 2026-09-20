@@ -21,13 +21,13 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            artifact: rtq-demo.dmg
+            artifact: AEGIS.dmg
             label: macos
           - os: windows-latest
-            artifact: rtq-demo.exe
+            artifact: AEGIS.exe
             label: windows
           - os: ubuntu-latest
-            artifact: rtq-demo.AppImage
+            artifact: AEGIS.AppImage
             label: linux
     steps:
       - uses: actions/checkout@v4
@@ -40,10 +40,6 @@ jobs:
       - name: Install root deps
         run: npm install
 
-      - name: Install create-dmg (macOS only)
-        if: matrix.os == 'macos-latest'
-        run: npm i -D create-dmg
-
       - name: Build server + web
         run: npm run build
 
@@ -54,24 +50,66 @@ jobs:
         run: npx pkg .
 
       # ------------------------------------------------------------------
-      # Windows — the pkg binary IS the portable EXE, just rename it
+      # Windows — rename the pkg binary
       # ------------------------------------------------------------------
       - name: Prepare Windows EXE
         if: matrix.os == 'windows-latest'
         run: |
-          Copy-Item dist\pkg\*-win.exe dist\rtq-demo.exe
+          Copy-Item dist\pkg\*-win.exe dist\AEGIS.exe
 
       # ------------------------------------------------------------------
-      # macOS — wrap the binary in a REAL .dmg (hdiutil)
+      # macOS — build a PROPER .app bundle with Info.plist
       # ------------------------------------------------------------------
       - name: Prepare macOS DMG
         if: matrix.os == 'macos-latest'
         run: |
-          mkdir -p dist/dmg-root/RTQ-Demo.app
-          cp dist/pkg/*-macos dist/dmg-root/RTQ-Demo.app/rtq-demo
-          chmod +x dist/dmg-root/RTQ-Demo.app/rtq-demo
-          hdiutil create -volname "RTQ Demo" -srcfolder dist/dmg-root \
-            -ov -format UDZO dist/rtq-demo.dmg
+          APP="dist/AEGIS.app"
+          mkdir -p "$APP/Contents/MacOS"
+          mkdir -p "$APP/Contents/Resources"
+
+          # Copy the binary
+          cp dist/pkg/*-macos "$APP/Contents/MacOS/AEGIS"
+          chmod +x "$APP/Contents/MacOS/AEGIS"
+
+          # Copy the icon (convert svg to icns if possible, else use png)
+          cp web/public/icon.svg "$APP/Contents/Resources/AppIcon.svg"
+
+          # Write a proper Info.plist
+          cat > "$APP/Contents/Info.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+            "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleName</key>
+            <string>AEGIS</string>
+            <key>CFBundleDisplayName</key>
+            <string>AEGIS</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.aegis.rtq-command-deck</string>
+            <key>CFBundleVersion</key>
+            <string>1.0.0</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0.0</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleExecutable</key>
+            <string>AEGIS</string>
+            <key>CFBundleIconFile</key>
+            <string>AppIcon</string>
+            <key>LSMinimumSystemVersion</key>
+            <string>11.0</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+            <key>NSRequiresAquaSystemAppearance</key>
+            <false/>
+          </dict>
+          </plist>
+          PLIST
+
+          # Create the DMG
+          hdiutil create -volname "AEGIS" -srcfolder dist/AEGIS.app \
+            -ov -format UDZO dist/AEGIS.dmg
 
       # ------------------------------------------------------------------
       # Linux — wrap the binary in a REAL AppImage (appimagetool)
@@ -83,21 +121,21 @@ jobs:
         run: |
           mkdir -p dist/AppDir/usr/bin
           mkdir -p dist/AppDir/usr/share/icons/hicolor/scalable/apps
-          cp dist/pkg/*-linux dist/AppDir/usr/bin/rtq-demo
-          chmod +x dist/AppDir/usr/bin/rtq-demo
-          cp web/public/icon.svg dist/AppDir/usr/share/icons/hicolor/scalable/apps/rtq-demo.svg
-          cp web/public/icon.svg dist/AppDir/rtq-demo.svg
-          cat > dist/AppDir/rtq-demo.desktop <<'EOF'
+          cp dist/pkg/*-linux dist/AppDir/usr/bin/AEGIS
+          chmod +x dist/AppDir/usr/bin/AEGIS
+          cp web/public/icon.svg dist/AppDir/usr/share/icons/hicolor/scalable/apps/AEGIS.svg
+          cp web/public/icon.svg dist/AppDir/AEGIS.svg
+          cat > dist/AppDir/AEGIS.desktop <<'EOF'
           [Desktop Entry]
           Type=Application
-          Name=RTQ Demo
-          Exec=rtq-demo
-          Icon=rtq-demo
+          Name=AEGIS
+          Exec=AEGIS
+          Icon=AEGIS
           Categories=Utility;
           EOF
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O dist/appimagetool
           chmod +x dist/appimagetool
-          dist/appimagetool dist/AppDir dist/rtq-demo.AppImage
+          dist/appimagetool dist/AppDir dist/AEGIS.AppImage
           rm -rf dist/AppDir dist/appimagetool
 
       - name: Upload artifact
@@ -134,7 +172,7 @@ jobs:
           set -e
           TAG="${{ steps.tag.outputs.tag }}"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" release-assets/rtq-demo.dmg release-assets/rtq-demo.exe release-assets/rtq-demo.AppImage --clobber
+            gh release upload "$TAG" release-assets/AEGIS.dmg release-assets/AEGIS.exe release-assets/AEGIS.AppImage --clobber
           else
-            gh release create "$TAG" release-assets/rtq-demo.dmg release-assets/rtq-demo.exe release-assets/rtq-demo.AppImage --generate-notes
+            gh release create "$TAG" release-assets/AEGIS.dmg release-assets/AEGIS.exe release-assets/AEGIS.AppImage --generate-notes
           fi
