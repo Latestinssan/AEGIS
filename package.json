@@ -12,6 +12,21 @@
     "url": "https://github.com/Latestinssan/AEGIS/issues"
   },
   "homepage": "https://github.com/Latestinssan/AEGIS#readme",
+  "keywords": [
+    "rtq",
+    "risk-adaptive",
+    "capability-security",
+    "command-deck",
+    "security-runtime",
+    "approval-workflow",
+    "audit-trail",
+    "device-verification",
+    "policy-engine",
+    "sandbox",
+    "sea",
+    "single-executable",
+    "aegis"
+  ],
   "workspaces": ["server", "web"],
   "scripts": {
     "dev": "concurrently -n rtq,deck -c cyan,magenta \"npm:dev -w server\" \"npm:dev -w web\"",
@@ -21,7 +36,7 @@
     "typecheck": "npm run typecheck -w server && npm run typecheck -w web",
     "build:sea": "node scripts/build-standalone.mjs",
     "build:pkg": "npm run build:sea && npx pkg .",
-    "build:dmg": "create-dmg \"dist/pkg/rtq-demo-macos\" \"dist/rtq-demo.dmg\" --overwrite",
+    "build:dmg": "create-dmg \"dist/pkg/rtq-demo-macos\" \"dist/AEGIS.dmg\" --overwrite",
     "build:appimage": "bash ./scripts/build-appimage.sh",
     "release:assets": "gh release upload v1.0.0 dist/AEGIS.dmg dist/AEGIS.exe dist/AEGIS.AppImage"
   },
@@ -40,6 +55,6 @@
     "outputPath": "dist/pkg"
   },
   "engines": {
-    "node": "\u003e=20"
+    "node": ">=20"
   }
 }

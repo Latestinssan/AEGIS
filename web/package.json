@@ -4,6 +4,28 @@
   "private": true,
   "type": "module",
   "description": "AEGIS web command deck — interactive RTQ pipeline visualizer.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Latestinssan/AEGIS.git",
+    "directory": "web"
+  },
+  "bugs": {
+    "url": "https://github.com/Latestinssan/AEGIS/issues"
+  },
+  "homepage": "https://github.com/Latestinssan/AEGIS/tree/main/web#readme",
+  "keywords": [
+    "rtq",
+    "risk-adaptive",
+    "capability-security",
+    "command-deck",
+    "dashboard",
+    "visualizer",
+    "react",
+    "vite",
+    "framer-motion",
+    "qrcode",
+    "aegis"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
